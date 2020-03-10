@@ -73,26 +73,30 @@ class HashTable:
 
         Hash collisions should be handled with Linked List Chaining.
         '''
-        # Step 1 increase size
-        self.size += 1
-
-        # 2 compute index of key
-        index = self._hash_mod(key)
-
-        # Go to the node corresponding to the hash
-        lp = self.storage_buckets[index]
-        # 3. If bucket is empty:
-        if lp is None:
-            # Create LinkedPair, add it, return
-            self.storage_buckets[index] = LinkedPair(key, value)
-            return
-        # 4. Iterate to the end of the linked list at provided index
-        prev = lp
-        while lp is not None:
-            prev = lp
-            lp = lp.next
-        # Add a new LinkedPair at the end of the list with provided key/value
-        prev.next = LinkedPair(key, value)
+        hashed_key = self._hash_mod(key)
+        current_val = self.storage_buckets[hashed_key]
+        self.storage_buckets[hashed_key] = LinkedPair(key, value)
+        self.storage_buckets[hashed_key].next = current_val
+        # # Step 1 increase size
+        # self.size += 1
+        #
+        # # 2 compute index of key
+        # index = self._hash_mod(key)
+        #
+        # # Go to the node corresponding to the hash
+        # lp = self.storage_buckets[index]
+        # # 3. If bucket is empty:
+        # if lp is None:
+        #     # Create LinkedPair, add it, return
+        #     self.storage_buckets[index] = LinkedPair(key, value)
+        #     return
+        # # 4. Iterate to the end of the linked list at provided index
+        # prev = lp
+        # while lp is not None:
+        #     prev = lp
+        #     lp = lp.next
+        # # Add a new LinkedPair at the end of the list with provided key/value
+        # prev.next = LinkedPair(key, value)
 
 
 
@@ -147,13 +151,14 @@ class HashTable:
         rehash all key/value pairs.
         '''
 
-        # use when trying to insert when an array is full
         self.capacity *= 2
-        new_storage = [None] * self.capacity
-        for i in range(self.size):
-            new_storage[i] = self.storage_buckets[i]
-
-        self.storage_buckets = new_storage
+        store = self.storage_buckets[:]
+        self.storage_buckets = [None] * self.capacity
+        for bucket in store:
+            node = bucket
+            while node is not None:
+                self.insert(node.key, node.value)
+                node = node.next
 
 
 
@@ -178,9 +183,10 @@ if __name__ == "__main__":
 
     print(f"\nResized from {old_capacity} to {new_capacity}.\n")
 
-    # # Test if data intact after resizing
-    # print(ht.retrieve("line_1"))
-    # print(ht.retrieve("line_2"))
-    # print(ht.retrieve("line_3"))
-    #
-    # print("")
+
+    # Test if data intact after resizing
+    print(ht.retrieve("line_1"))
+    print(ht.retrieve("line_2"))
+    print(ht.retrieve("line_3"))
+
+    print("")
